@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+openai
+python-multipart
+python-dateutil
+langchain
+langchain-openai
+langgraph
+langchain-community
