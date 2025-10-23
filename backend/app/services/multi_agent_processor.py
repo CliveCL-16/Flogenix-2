@@ -1,8 +1,3 @@
-"""
-Multi-agent claim processing using LangGraph
-Implements the agentic AI workflow with specialized agents
-"""
-
 import os
 import asyncio
 import time
@@ -10,9 +5,9 @@ from datetime import datetime
 from typing import Dict, Any, List
 from dotenv import load_dotenv
 
-from langchain_openai import ChatOpenAI
-from langchain.agents import create_openai_functions_agent
-from langchain.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI  # your LLM
+# from .create_tool_calling_agent import create_tool_calling_agent  <-- remove this
+
 from langgraph.graph import StateGraph, END
 from .ToolExecutor import ToolExecutor
 
@@ -24,6 +19,7 @@ from app.services.agent_tools import (
     INTAKE_TOOLS, ELIGIBILITY_TOOLS, CLINICAL_TOOLS, 
     FRAUD_TOOLS, ADJUDICATION_TOOLS
 )
+
 
 # Load environment variables
 load_dotenv()

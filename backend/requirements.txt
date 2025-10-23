@@ -5,7 +5,9 @@ python-dotenv
 openai
 python-multipart
 python-dateutil
-langchain
-langchain-openai
 langgraph
+langchain
+langchain-core
+langchain-text-splitters
 langchain-community
+langchain-openai
