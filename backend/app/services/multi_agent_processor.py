@@ -511,9 +511,16 @@ class MultiAgentProcessor:
             eligibility_passed = state.eligibility_verified
             codes_valid = state.codes_validated
             fraud_flagged = state.fraud_result and state.fraud_result.get("flagged", False)
+            claim_amount = float(state.claim_data["claim_amount"])
+            
+            # Additional complexity checks
+            high_value = claim_amount > 25000
+            needs_review = False
             
             agent_report.reasoning_steps.append(
-                ReasoningStep(step=3, type="REASON", text=f"Analysis: Eligibility={eligibility_passed}, Codes={codes_valid}, Fraud={fraud_flagged}")
+                ReasoningStep(step=3, type="REASON", 
+                            text=f"Analysis: Eligibility={eligibility_passed}, Codes={codes_valid}, " 
+                                f"Fraud={fraud_flagged}, Amount=${claim_amount:,.2f}")
             )
             
             # Decision logic
@@ -552,6 +559,31 @@ class MultiAgentProcessor:
                 })
                 agent_report.tools_used.append(deny_result["tool_usage"])
                 
+            # Check for conditions requiring human review
+            elif high_value or needs_special_review(state.claim_data):
+                decision = DecisionType.REVIEW
+                reason = "Claim requires manual review: "
+                review_reasons = []
+                
+                if high_value:
+                    review_reasons.append(f"High value claim (${claim_amount:,.2f})")
+                if needs_special_review(state.claim_data):
+                    review_reasons.append("Complex procedure combination")
+                
+                reason += ", ".join(review_reasons)
+                confidence = 75.0
+                
+                agent_report.reasoning_steps.append(
+                    ReasoningStep(step=4, type="ACT", text="Escalating for human review")
+                )
+                
+                review_result = self._execute_tool("request_human_review", {
+                    "claim_id": state.claim_id,
+                    "reason": reason,
+                    "urgency": "high" if high_value else "normal"
+                })
+                agent_report.tools_used.append(review_result["tool_usage"])
+                
             else:
                 decision = DecisionType.APPROVE
                 reason = "All validation checks passed"
@@ -563,7 +595,7 @@ class MultiAgentProcessor:
                 
                 approve_result = self._execute_tool("approve_claim", {
                     "claim_id": state.claim_id,
-                    "amount": float(state.claim_data["claim_amount"]),
+                    "amount": claim_amount,
                     "reason": reason
                 })
                 agent_report.tools_used.append(approve_result["tool_usage"])
@@ -595,6 +627,24 @@ class MultiAgentProcessor:
         
         return state
     
+    def needs_special_review(self, claim_data: Dict[str, Any]) -> bool:
+        """Check if claim needs special review based on specific criteria"""
+        # List of procedure codes that require review
+        review_required_procedures = ["27447", "27130", "33533"]  # Major surgeries
+        
+        # List of diagnosis codes that need extra attention
+        complex_diagnoses = ["C50", "I21", "I63"]  # Cancer, heart attack, stroke
+        
+        # Check for complex combinations
+        procedure = claim_data.get("procedure_code", "")
+        diagnosis = claim_data.get("diagnosis_code", "")
+        
+        return (
+            procedure in review_required_procedures or
+            any(diagnosis.startswith(code) for code in complex_diagnoses) or
+            (float(claim_data.get("claim_amount", 0)) > 50000)  # High-value claims
+        )
+
     def _execute_tool(self, tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a tool and return formatted result"""
         try:

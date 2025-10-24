@@ -10,6 +10,7 @@ class ValidationService:
     
     # Common ICD-10 codes for demo
     VALID_ICD10_CODES = {
+        # Regular checkups and conditions
         "Z00.00": "Encounter for general adult medical examination without abnormal findings",
         "S52.501A": "Unspecified fracture of the lower end of right radius, initial encounter",
         "M25.511": "Pain in right shoulder",
@@ -17,7 +18,14 @@ class ValidationService:
         "J06.9": "Acute upper respiratory infection, unspecified",
         "K21.9": "Gastro-esophageal reflux disease without esophagitis",
         "M79.3": "Panniculitis, unspecified",
-        "I10": "Essential hypertension"
+        "I10": "Essential hypertension",
+        
+        # Complex conditions requiring review
+        "C50.1": "Malignant neoplasm of central portion of breast",
+        "C50.2": "Malignant neoplasm of upper-inner quadrant of breast",
+        "I21.0": "ST elevation (STEMI) myocardial infarction of anterior wall",
+        "I63.1": "Cerebral infarction due to embolism of precerebral arteries",
+        "I63.2": "Cerebral infarction due to unspecified occlusion of cerebral arteries"
     }
     
     # Common CPT codes for demo
@@ -34,6 +42,7 @@ class ValidationService:
     
     # Procedure-diagnosis compatibility
     COMPATIBLE_PROCEDURES = {
+        # Regular procedures
         "Z00.00": ["99213", "99214", "99215"],  # General exam -> office visits
         "S52.501A": ["27447", "73721"],  # Fracture -> orthopedic procedures
         "M25.511": ["99213", "99214", "73721"],  # Shoulder pain -> visits/imaging
@@ -41,7 +50,14 @@ class ValidationService:
         "J06.9": ["99213", "99214"],  # Respiratory infection -> office visits
         "K21.9": ["99213", "99214"],  # GERD -> office visits
         "M79.3": ["99213", "99214"],  # Panniculitis -> office visits
-        "I10": ["99213", "99214", "85025"]  # Hypertension -> visits/lab work
+        "I10": ["99213", "99214", "85025"],  # Hypertension -> visits/lab work
+        
+        # Complex conditions
+        "C50.1": ["99215", "27447", "73721"],  # Breast cancer -> complex visits and procedures
+        "C50.2": ["99215", "27447", "73721"],  # Breast cancer -> complex visits and procedures
+        "I21.0": ["99215", "27447", "85025"],  # Heart attack -> complex visits and cardiac care
+        "I63.1": ["99215", "73721", "85025"],  # Stroke -> complex visits and imaging
+        "I63.2": ["99215", "73721", "85025"]   # Stroke -> complex visits and imaging
     }
     
     @classmethod

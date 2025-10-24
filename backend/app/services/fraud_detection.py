@@ -92,11 +92,15 @@ class FraudDetectionService:
             
             # Check for exact duplicates
             if (existing_claim.patient_id == claim.patient_id and
-                existing_claim.service_date == claim.service_date and
-                existing_claim.procedure_code == claim.procedure_code):
+                existing_claim.service_date == claim.service_date):
                 
-                score += 40  # High score for potential duplicate
-                factors.append(f"Potential duplicate of claim {existing_claim.claim_id}")
+                score += 50  # Higher score for same patient and date
+                factors.append(f"Duplicate claim detected - same patient and date as claim {existing_claim.claim_id}")
+                
+                # Additional score if procedure is also the same
+                if existing_claim.procedure_code == claim.procedure_code:
+                    score += 30  # Total 80 points for exact duplicate
+                    factors.append("Same procedure code in duplicate claim - highly suspicious")
             
             # Check for same patient, same day, different procedures (suspicious)
             elif (existing_claim.patient_id == claim.patient_id and
@@ -132,10 +136,13 @@ class FraudDetectionService:
                 score += 15
                 factors.append(f"Amount ${claim.claim_amount:,.2f} is unusually low compared to average ${expected_amount:,.2f}")
         
-        # Flag very high amounts regardless of procedure
+        # Flag high amounts regardless of procedure
         if claim.claim_amount > 50000:
-            score += 20
+            score += 35  # Increased from 20
             factors.append(f"High-value claim: ${claim.claim_amount:,.2f}")
+        elif claim.claim_amount > 10000:
+            score += 25
+            factors.append(f"Significant claim amount: ${claim.claim_amount:,.2f}")
         
         return score, factors
     

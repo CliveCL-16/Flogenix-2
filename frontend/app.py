@@ -259,48 +259,50 @@ elif page == "📝 Submit Claim":
             st.subheader("Additional Information")
             notes = st.text_area("Notes", placeholder="Additional claim details...", height=100)
         
-        # Submit button
-        submitted = st.form_submit_button("Submit Claim", type="primary")
-        
-        if submitted:
-            # Validation
-            required_fields = [patient_name, patient_id, insurance_provider, policy_number, provider_name]
-            if not all(required_fields):
-                st.error("Please fill in all required fields (marked with *)")
-            else:
-                # Extract codes from dropdown selections
-                diagnosis_code_clean = diagnosis_code.split(" - ")[0]
-                procedure_code_clean = procedure_code.split(" - ")[0]
-                
-                # Prepare claim data
-                claim_data = {
-                    "patient_name": patient_name,
-                    "patient_id": patient_id,
-                    "insurance_provider": insurance_provider,
-                    "policy_number": policy_number,
-                    "diagnosis_code": diagnosis_code_clean,
-                    "procedure_code": procedure_code_clean,
-                    "claim_amount": claim_amount,
-                    "service_date": service_date,
-                    "provider_name": provider_name,
-                    "provider_npi": provider_npi if provider_npi else None,
-                    "notes": notes if notes else None
-                }
-                
-                # Submit claim
-                result = api.submit_claim(claim_data)
-                
-                if result:
-                    st.success(f"✅ Claim submitted successfully! Claim ID: {result['claim_id']}")
-                    st.info("You can now process this claim or view it in the Claims list.")
-                    
-                    # Option to process immediately
-                    if st.button("Process Claim Now"):
-                        with st.spinner("Processing claim..."):
-                            process_result = api.process_claim(result['claim_id'])
-                            if process_result:
-                                st.success(f"Claim processed: {process_result['status']}")
-                                st.json(process_result)
+        # Submit claim
+        submit_claim = st.form_submit_button("Submit Claim")
+        # Process immediately (optional)
+        process_claim_now = st.form_submit_button("Submit & Process Claim Now")
+
+    # Handle submission outside form
+    if submit_claim or process_claim_now:
+        # Validation
+        required_fields = [patient_name, patient_id, insurance_provider, policy_number, provider_name]
+        if not all(required_fields):
+            st.error("Please fill in all required fields (marked with *)")
+        else:
+            # Extract codes
+            diagnosis_code_clean = diagnosis_code.split(" - ")[0]
+            procedure_code_clean = procedure_code.split(" - ")[0]
+
+            # Prepare claim data
+            claim_data = {
+                "patient_name": patient_name,
+                "patient_id": patient_id,
+                "insurance_provider": insurance_provider,
+                "policy_number": policy_number,
+                "diagnosis_code": diagnosis_code_clean,
+                "procedure_code": procedure_code_clean,
+                "claim_amount": claim_amount,
+                "service_date": service_date,
+                "provider_name": provider_name,
+                "provider_npi": provider_npi if provider_npi else None,
+                "notes": notes if notes else None
+            }
+
+            # Submit claim
+            result = api.submit_claim(claim_data)
+
+            if result:
+                st.success(f"✅ Claim submitted successfully! Claim ID: {result['claim_id']}")
+                st.info("You can now view this claim in the Claims list.")
+
+                if process_claim_now:
+                    with st.spinner("Processing claim..."):
+                        process_result = api.process_claim(result['claim_id'])
+                        if process_result:
+                            st.success(f"Claim processed: {process_result['status']}")
+                            st.json(process_result)
 
 elif page == "📋 View Claims":
     st.title("📋 Claims Management")
