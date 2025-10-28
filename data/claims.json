@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "patient_name": "Sarah Johnson",
+    "patient_id": "PAT-2024-001",
+    "insurance_provider": "BlueCross BlueShield",
+    "policy_number": "BC12345678",
+    "diagnosis_code": "Z00.01",
+    "procedure_code": "99213",
+    "claim_amount": 250.0,
+    "service_date": "2024-10-25",
+    "provider_name": "City Medical Center",
+    "provider_npi": "1234567890",
+    "notes": "Annual physical examination",
+    "claim_id": "CLM-SAMPLE001",
+    "status": "APPROVED",
+    "created_at": "2024-10-28T10:00:00",
+    "processed_at": "2025-10-28T11:57:34.614922"
+  },
+  {
+    "claim_id": "CLM-SAMPLE002",
+    "patient_name": "Michael Chen",
+    "patient_id": "PAT-2024-002",
+    "insurance_provider": "Aetna",
+    "policy_number": "AET98765432",
+    "diagnosis_code": "K00.9",
+    "procedure_code": "D1110",
+    "claim_amount": 180.0,
+    "service_date": "2024-10-26",
+    "provider_name": "Dental Care Associates",
+    "provider_npi": "9876543210",
+    "notes": "Routine dental cleaning",
+    "status": "APPROVED",
+    "created_at": "2024-10-27T14:30:00",
+    "processed_at": "2024-10-28T09:15:00"
+  },
+  {
+    "claim_id": "CLM-SAMPLE003",
+    "patient_name": "Emily Davis",
+    "patient_id": "PAT-2024-003",
+    "insurance_provider": "UnitedHealth",
+    "policy_number": "UH11223344",
+    "diagnosis_code": "H52.4",
+    "procedure_code": "92015",
+    "claim_amount": 120.0,
+    "service_date": "2024-10-24",
+    "provider_name": "Vision Care Center",
+    "provider_npi": "1122334455",
+    "notes": "Vision examination and prescription update",
+    "status": "PENDING_REVIEW",
+    "created_at": "2024-10-26T16:45:00",
+    "processed_at": "2024-10-27T11:20:00"
+  }
+]

@@ -51,8 +51,14 @@ async def submit_claim(claim_submission: ClaimSubmission):
 @router.get("/claims", response_model=List[Claim])
 async def get_claims(status: Optional[ClaimStatus] = Query(None, description="Filter by claim status")):
     """Get all claims, optionally filtered by status"""
-    claims = data_handler.get_all_claims(status_filter=status)
-    return claims
+    try:
+        print(f"Getting claims with status filter: {status}")
+        claims = data_handler.get_all_claims(status_filter=status)
+        print(f"Found {len(claims)} claims")
+        return claims
+    except Exception as e:
+        print(f"Error getting claims: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error retrieving claims: {str(e)}")
 
 
 @router.get("/claims/{claim_id}", response_model=ClaimDetail)

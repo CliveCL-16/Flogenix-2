@@ -8,7 +8,7 @@ from app.models import Claim, DecisionLog, ExceptionLog, ClaimStatus, DashboardM
 
 
 class DataHandler:
-    def __init__(self, data_dir: str = "../../data"):
+    def __init__(self, data_dir: str = "../data"):
         self.data_dir = Path(data_dir).resolve()
         self.claims_file = self.data_dir / "claims.json"
         self.decisions_file = self.data_dir / "decisions.json"

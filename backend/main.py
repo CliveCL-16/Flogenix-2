@@ -24,6 +24,9 @@ app.add_middleware(
         "http://localhost:5173", "http://127.0.0.1:5173",  # Vite default ports
         "http://localhost:3000", "http://127.0.0.1:3000",  # React default ports
         "http://localhost:4173", "http://127.0.0.1:4173",  # Vite preview ports
+        "http://localhost:8080", "http://127.0.0.1:8080",  # Additional port
+        "http://localhost:8081", "http://127.0.0.1:8081",  # Additional port
+        "*"  # Allow all origins for development (remove in production)
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -41,8 +44,15 @@ async def root():
         "message": "Welcome to Flowgenix API",
         "description": "Intelligent Autonomous Healthcare Claims Approval Platform",
         "docs": "/docs",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "status": "running"
     }
+
+
+@app.get("/test")
+async def test_endpoint():
+    """Test endpoint to verify server is working"""
+    return {"status": "ok", "message": "Server is working correctly"}
 
 
 @app.exception_handler(Exception)
