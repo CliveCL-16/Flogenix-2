@@ -1,10 +1,12 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Any, List
 import openai
 from dotenv import load_dotenv
+from sqlalchemy.orm import Session
 
-from app.models import Claim, DecisionType, DecisionLog, ClaimState
+from app.models import Claim, DecisionType, ClaimState
+from app.core.models import DecisionLog, AgentReport as SQLAgentReport, AgentStatus as SQLAgentStatus  # Import SQLAlchemy model
 from app.services.validation import ValidationService
 from app.services.multi_agent_processor import MultiAgentProcessor
 
@@ -17,16 +19,27 @@ class AIProcessingService:
     def __init__(self):
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            print("Warning: OPENAI_API_KEY not found in environment variables")
+            print("Warning: OPENAI_API_KEY not found in environment variables - using mock mode")
             self.client = None
+            self.mock_mode = True
         else:
             self.client = openai.OpenAI(api_key=api_key)
+            self.mock_mode = False
         
         # Initialize multi-agent processor
         self.multi_agent_processor = MultiAgentProcessor()
     
-    async def process_claim(self, claim: Claim, fraud_score: float) -> DecisionLog:
+    async def process_claim(self, claim: Claim, fraud_score: float, db: Session = None) -> DecisionLog:
         """Process a claim using multi-agent AI system and return decision log"""
+        
+        print(f"🤖 AI Processing started for claim {claim.claim_id}")
+        print(f"📊 Fraud score: {fraud_score}")
+        print(f"🔑 Mock mode: {self.mock_mode}")
+        
+        # Use mock processing if OpenAI API key is not available
+        if self.mock_mode:
+            print("🎭 Using mock processing mode")
+            return self._mock_process_claim(claim, fraud_score)
         
         try:
             # Prepare claim data for agents
@@ -44,15 +57,42 @@ class AIProcessingService:
                 "notes": claim.notes
             }
             
+            print(f"🔄 Starting multi-agent processing...")
             # Process through multi-agent system
             result_state = await self.multi_agent_processor.process_claim(claim_data, claim.claim_id)
+            print(f"✅ Multi-agent processing completed, type: {type(result_state)}")
+            
+            # Handle both ClaimState objects and dict results from LangGraph
+            if isinstance(result_state, dict):
+                final_decision = result_state.get('final_decision', DecisionType.REVIEW)
+                confidence_score = result_state.get('confidence_score', 50.0)
+                reasoning = result_state.get('reasoning', 'Multi-agent processing completed')
+                print(f"📋 Result (dict): {final_decision}, confidence: {confidence_score}")
+            else:
+                final_decision = result_state.final_decision or DecisionType.REVIEW
+                confidence_score = result_state.confidence_score
+                reasoning = self._format_agent_reasoning(result_state)
+                print(f"📋 Result (object): {final_decision}, confidence: {confidence_score}")
+            
+            print(f"🎯 Final decision: {final_decision} with {confidence_score}% confidence")
+            
+            # Save agent reports to database if db session provided
+            if db:
+                if isinstance(result_state, ClaimState) and result_state.agent_reports:
+                    print(f"💾 Saving {len(result_state.agent_reports)} agent reports to database...")
+                    self._save_agent_reports(db, claim.claim_id, result_state.agent_reports)
+                elif isinstance(result_state, dict) and result_state.get('agent_reports'):
+                    print(f"💾 Saving {len(result_state['agent_reports'])} agent reports from dict to database...")
+                    self._save_agent_reports(db, claim.claim_id, result_state['agent_reports'])
+                else:
+                    print(f"⚠️ No agent reports found to save (type: {type(result_state)})")
             
             # Create decision log from agent results
             decision_log = DecisionLog(
                 claim_id=claim.claim_id,
-                decision=result_state.final_decision or DecisionType.REVIEW,
-                confidence_score=result_state.confidence_score,
-                reasoning_text=self._format_agent_reasoning(result_state),
+                decision=final_decision,
+                confidence_score=confidence_score,
+                reasoning_text=reasoning,
                 fraud_score=fraud_score,
                 created_at=datetime.now()
             )
@@ -62,6 +102,66 @@ class AIProcessingService:
         except Exception as e:
             print(f"Multi-agent processing failed, using fallback: {e}")
             return self._fallback_processing(claim, fraud_score)
+    
+    def _save_agent_reports(self, db: Session, claim_id: str, agent_reports: List) -> None:
+        """Save agent reports from ClaimState to database"""
+        try:
+            for pydantic_report in agent_reports:
+                # Helper function to convert datetime objects to strings in nested structures
+                def serialize_datetime_objects(obj):
+                    if isinstance(obj, datetime):
+                        return obj.isoformat()
+                    elif isinstance(obj, dict):
+                        return {k: serialize_datetime_objects(v) for k, v in obj.items()}
+                    elif isinstance(obj, list):
+                        return [serialize_datetime_objects(item) for item in obj]
+                    else:
+                        return obj
+                
+                # Convert reasoning steps to JSON-serializable format
+                reasoning_steps = []
+                if pydantic_report.reasoning_steps:
+                    for step in pydantic_report.reasoning_steps:
+                        if hasattr(step, 'dict'):
+                            step_dict = step.dict()
+                        else:
+                            step_dict = step
+                        reasoning_steps.append(serialize_datetime_objects(step_dict))
+                
+                # Convert tool usage to JSON-serializable format
+                tool_usage = []
+                if pydantic_report.tools_used:
+                    for tool in pydantic_report.tools_used:
+                        if hasattr(tool, 'dict'):
+                            tool_dict = tool.dict()
+                        else:
+                            tool_dict = tool
+                        tool_usage.append(serialize_datetime_objects(tool_dict))
+                
+                # Convert Pydantic AgentReport to SQLAlchemy AgentReport
+                sql_report = SQLAgentReport(
+                    claim_id=claim_id,
+                    agent_name=pydantic_report.agent_name,
+                    agent_type=pydantic_report.agent_name.lower().replace(" agent", ""),  # Convert "Intake Agent" to "intake"
+                    status=SQLAgentStatus.COMPLETED if pydantic_report.status.value == "COMPLETED" else SQLAgentStatus.ERROR,
+                    started_at=datetime.now() - timedelta(seconds=pydantic_report.duration_seconds) if pydantic_report.duration_seconds else datetime.now(),
+                    completed_at=datetime.now(),
+                    duration_seconds=pydantic_report.duration_seconds,
+                    result=pydantic_report.result,
+                    confidence_score=getattr(pydantic_report, 'confidence_score', None),
+                    reasoning_steps=reasoning_steps,
+                    tool_usage=tool_usage,
+                    error_message=getattr(pydantic_report, 'error_message', None),
+                    retry_count=0
+                )
+                db.add(sql_report)
+            
+            db.commit()
+            print(f"✅ Successfully saved {len(agent_reports)} agent reports to database")
+            
+        except Exception as e:
+            print(f"❌ Error saving agent reports to database: {e}")
+            db.rollback()
     
     def _format_agent_reasoning(self, state: ClaimState) -> str:
         """Format the reasoning from all agents into a comprehensive explanation"""
@@ -375,6 +475,45 @@ Be thorough but concise. Focus on medical accuracy and policy compliance."""
             "confidence_score": confidence,
             "reasoning": response[:500]  # Truncate if too long
         }
+    
+    def _mock_process_claim(self, claim: Claim, fraud_score: float) -> DecisionLog:
+        """Fast mock processing for development/testing when OpenAI API is not available"""
+        import random
+        
+        # Simple mock logic based on claim characteristics
+        decisions = [DecisionType.APPROVE, DecisionType.DENY, DecisionType.REVIEW]
+        weights = [0.6, 0.2, 0.2]  # 60% approve, 20% deny, 20% review
+        
+        # Adjust weights based on fraud score
+        if fraud_score > 80:
+            weights = [0.1, 0.8, 0.1]  # Mostly deny
+        elif fraud_score > 60:
+            weights = [0.2, 0.3, 0.5]  # Mostly review
+        elif claim.claim_amount > 10000:
+            weights = [0.4, 0.2, 0.4]  # More review for high amounts
+        
+        decision = random.choices(decisions, weights=weights)[0]
+        confidence = random.randint(75, 95)
+        
+        reasoning_options = [
+            f"Mock AI analysis: Standard processing for {claim.procedure_code} procedure",
+            f"Mock AI analysis: Claim amount ${claim.claim_amount:,.2f} within normal range",
+            f"Mock AI analysis: Provider {claim.provider_name} has good history",
+            f"Mock AI analysis: Diagnosis code {claim.diagnosis_code} matches procedure"
+        ]
+        
+        reasoning = random.choice(reasoning_options)
+        if fraud_score > 60:
+            reasoning += f". Fraud risk score: {fraud_score:.1f}/100"
+        
+        return DecisionLog(
+            claim_id=claim.claim_id,
+            decision=decision,
+            confidence_score=confidence,
+            reasoning_text=reasoning,
+            fraud_score=fraud_score,
+            created_at=datetime.now()
+        )
     
     def _fallback_processing(self, claim: Claim, fraud_score: float) -> DecisionLog:
         """Rule-based fallback when AI is not available"""

@@ -35,7 +35,7 @@ const UserPortal = () => {
       setIsLoading(true);
       const claimsData = await apiClient.getClaims();
       // Get the 3 most recent claims for the user
-      setRecentClaims(claimsData.slice(0, 3));
+      setRecentClaims(claimsData.claims.slice(0, 3));
     } catch (error) {
       toast({
         title: "Error Loading Claims",

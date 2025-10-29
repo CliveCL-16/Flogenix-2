@@ -59,17 +59,13 @@ class MultiAgentProcessor:
         workflow.add_node("fraud_agent", self._fraud_agent)
         workflow.add_node("adjudication_agent", self._adjudication_agent)
         
-        # Define workflow edges
+        # Define workflow edges - sequential to avoid concurrent updates
         workflow.set_entry_point("intake_agent")
         
-        # Sequential flow: intake -> eligibility & clinical & fraud (parallel) -> adjudication
+        # Sequential flow: intake -> eligibility -> clinical -> fraud -> adjudication
         workflow.add_edge("intake_agent", "eligibility_agent")
-        workflow.add_edge("intake_agent", "clinical_agent")
-        workflow.add_edge("intake_agent", "fraud_agent")
-        
-        # All agents feed into adjudication
-        workflow.add_edge("eligibility_agent", "adjudication_agent")
-        workflow.add_edge("clinical_agent", "adjudication_agent")
+        workflow.add_edge("eligibility_agent", "clinical_agent")
+        workflow.add_edge("clinical_agent", "fraud_agent")
         workflow.add_edge("fraud_agent", "adjudication_agent")
         
         # End after adjudication
@@ -80,7 +76,11 @@ class MultiAgentProcessor:
     async def process_claim(self, claim_data: Dict[str, Any], claim_id: str) -> ClaimState:
         """Process a claim through the multi-agent workflow"""
         
+        print(f"🔍 MultiAgentProcessor: Starting processing for claim {claim_id}")
+        print(f"🔑 LLM available: {self.llm is not None}")
+        
         if not self.llm:
+            print("⚠️ No LLM available, using fallback processing")
             return self._fallback_processing(claim_data, claim_id)
         
         # Initialize state
@@ -90,13 +90,17 @@ class MultiAgentProcessor:
             agent_reports=[]
         )
         
+        print(f"🚀 Initialized state, starting workflow...")
         try:
             # Run the workflow
+            print(f"📊 Running LangGraph workflow...")
             result = await self.workflow.ainvoke(initial_state)
+            print(f"✅ Workflow completed successfully, result type: {type(result)}")
             return result
             
         except Exception as e:
-            print(f"Multi-agent processing failed: {e}")
+            print(f"❌ Multi-agent processing failed: {e}")
+            print(f"🔄 Falling back to rule-based processing...")
             return self._fallback_processing(claim_data, claim_id)
     
     def _intake_agent(self, state: ClaimState) -> ClaimState:
@@ -165,6 +169,7 @@ class MultiAgentProcessor:
         finally:
             agent_report.duration_seconds = time.time() - start_time
             state.agent_reports.append(agent_report)
+            state.intake_completed = True
         
         return state
     
@@ -560,14 +565,14 @@ class MultiAgentProcessor:
                 agent_report.tools_used.append(deny_result["tool_usage"])
                 
             # Check for conditions requiring human review
-            elif high_value or needs_special_review(state.claim_data):
+            elif high_value or self.needs_special_review(state.claim_data):
                 decision = DecisionType.REVIEW
                 reason = "Claim requires manual review: "
                 review_reasons = []
                 
                 if high_value:
                     review_reasons.append(f"High value claim (${claim_amount:,.2f})")
-                if needs_special_review(state.claim_data):
+                if self.needs_special_review(state.claim_data):
                     review_reasons.append("Complex procedure combination")
                 
                 reason += ", ".join(review_reasons)

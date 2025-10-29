@@ -17,16 +17,24 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
     
-    const success = login(email, password, type);
-    if (success) {
+    try {
+      await login({
+        email_or_username: email,
+        password: password
+      });
+      
       navigate(type === 'admin' ? '/admin' : '/user');
-    } else {
+    } catch (error) {
       setError("Invalid credentials. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,8 +96,8 @@ const Login = () => {
             </Alert>
           )}
 
-          <Button type="submit" className="w-full">
-            Sign In
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
 

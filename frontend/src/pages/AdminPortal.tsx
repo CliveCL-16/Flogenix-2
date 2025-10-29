@@ -44,7 +44,7 @@ const AdminPortal = () => {
       
       setMetrics(metricsData);
       // Get the 5 most recent claims
-      setRecentClaims(claimsData.slice(0, 5));
+      setRecentClaims(claimsData.claims.slice(0, 5));
     } catch (error) {
       toast({
         title: "Error Loading Dashboard",
@@ -162,7 +162,7 @@ const AdminPortal = () => {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mb-1">Fraud Flagged</p>
-                <p className="text-3xl font-bold text-foreground">{metrics.fraud_flagged_count}</p>
+                <p className="text-3xl font-bold text-foreground">{metrics.fraud_flagged_claims}</p>
               </Card>
 
               {/* Pending Claims */}
@@ -173,7 +173,7 @@ const AdminPortal = () => {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mb-1">Pending Review</p>
-                <p className="text-3xl font-bold text-foreground">{metrics.pending_review_count}</p>
+                <p className="text-3xl font-bold text-foreground">{metrics.pending_claims}</p>
               </Card>
 
               {/* Approved Claims */}
@@ -184,7 +184,7 @@ const AdminPortal = () => {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mb-1">Approved</p>
-                <p className="text-3xl font-bold text-foreground">{metrics.approved_count}</p>
+                <p className="text-3xl font-bold text-foreground">{metrics.approved_claims}</p>
               </Card>
             </div>
           ) : (

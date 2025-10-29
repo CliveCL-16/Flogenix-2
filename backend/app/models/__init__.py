@@ -1,7 +1,20 @@
 from datetime import datetime, date
 from enum import Enum
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Annotated
 from pydantic import BaseModel, Field
+import operator
+
+
+class UserInfo(BaseModel):
+    """User information model for API responses"""
+    id: int
+    user_id: str
+    email: str
+    username: str
+    first_name: str
+    last_name: str
+    role: str
+    two_factor_enabled: bool
 
 
 class ClaimStatus(str, Enum):
@@ -68,8 +81,8 @@ class ClaimState(BaseModel):
     clinical_result: Optional[Dict[str, Any]] = None
     fraud_result: Optional[Dict[str, Any]] = None
     
-    # Agent reports
-    agent_reports: List[AgentReport] = []
+    # Agent reports - use Annotated for concurrent updates
+    agent_reports: Annotated[List[AgentReport], operator.add] = []
     
     # Final decision
     final_decision: Optional[DecisionType] = None

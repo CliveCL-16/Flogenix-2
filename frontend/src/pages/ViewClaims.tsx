@@ -34,7 +34,7 @@ const ViewClaims = () => {
     try {
       setIsLoading(true);
       const claimsData = await apiClient.getClaims();
-      setClaims(claimsData);
+      setClaims(claimsData.claims);
     } catch (error) {
       toast({
         title: "Error Loading Claims",

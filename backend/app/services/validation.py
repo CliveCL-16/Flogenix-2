@@ -160,13 +160,23 @@ class ValidationService:
         return procedure_code in cls.COMPATIBLE_PROCEDURES[diagnosis_code]
     
     @staticmethod
-    def _validate_service_date(service_date: date) -> bool:
+    def _validate_service_date(service_date) -> bool:
         """Validate service date"""
-        today = date.today()
-        one_year_ago = today - timedelta(days=365)
-        
-        # Service date cannot be in the future or more than 1 year old
-        return one_year_ago <= service_date <= today
+        try:
+            # Handle both date and datetime objects
+            if isinstance(service_date, datetime):
+                service_date = service_date.date()
+            elif not isinstance(service_date, date):
+                return False
+                
+            today = date.today()
+            one_year_ago = today - timedelta(days=365)
+            
+            # Service date cannot be in the future or more than 1 year old
+            return one_year_ago <= service_date <= today
+        except Exception as e:
+            print(f"Service date validation error: {e}")
+            return False
     
     @staticmethod
     def _validate_npi(npi: str) -> bool:

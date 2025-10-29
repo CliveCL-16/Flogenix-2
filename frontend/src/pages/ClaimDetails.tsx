@@ -26,7 +26,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { 
   apiClient, 
-  ClaimDetail, 
+  type Claim,
+  ClaimDetails, 
   getStatusColor, 
   getStatusLabel, 
   formatCurrency, 
@@ -39,7 +40,7 @@ const ClaimDetailsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { userType } = useAuth();
-  const [claim, setClaim] = useState<ClaimDetail | null>(null);
+  const [claim, setClaim] = useState<ClaimDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [fraudAnalysis, setFraudAnalysis] = useState<any>(null);
@@ -61,12 +62,13 @@ const ClaimDetailsPage = () => {
 
       // Load additional data for admin users
       if (userType === 'admin') {
-        try {
-          const fraudData = await apiClient.getFraudAnalysis(claimId);
-          setFraudAnalysis(fraudData);
-        } catch (error) {
-          // Fraud analysis might not exist yet
-        }
+        // TODO: Implement fraud analysis API endpoint
+        // try {
+        //   const fraudData = await apiClient.getFraudAnalysis(claimId);
+        //   setFraudAnalysis(fraudData);
+        // } catch (error) {
+        //   // Fraud analysis might not exist yet
+        // }
 
         try {
           const timelineData = await apiClient.getAgentTimeline(claimId);
@@ -156,17 +158,17 @@ const ClaimDetailsPage = () => {
                 <Activity className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">{claim.claim_id}</h1>
+                <h1 className="text-xl font-bold text-foreground">{claim.claim.claim_id}</h1>
                 <p className="text-xs text-muted-foreground">Claim Details</p>
               </div>
             </div>
           </div>
           
           <div className="flex items-center gap-2">
-            <Badge variant={getStatusColor(claim.status) as any} className="text-sm">
-              {getStatusLabel(claim.status)}
+            <Badge variant={getStatusColor(claim.claim.status) as any} className="text-sm">
+              {getStatusLabel(claim.claim.status)}
             </Badge>
-            {userType === 'admin' && claim.status === 'PENDING' && (
+            {userType === 'admin' && claim.claim.status === 'PENDING' && (
               <Button 
                 onClick={handleProcessClaim} 
                 disabled={isProcessing}
@@ -211,20 +213,20 @@ const ClaimDetailsPage = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Amount:</span>
-                    <span className="font-semibold text-lg">{formatCurrency(claim.claim_amount)}</span>
+                    <span className="font-semibold text-lg">{formatCurrency(claim.claim.claim_amount)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Service Date:</span>
-                    <span>{new Date(claim.service_date).toLocaleDateString()}</span>
+                    <span>{new Date(claim.claim.service_date).toLocaleDateString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Submitted:</span>
-                    <span>{formatDateTime(claim.created_at)}</span>
+                    <span>{formatDateTime(claim.claim.created_at)}</span>
                   </div>
-                  {claim.processed_at && (
+                  {claim.claim.processed_at && (
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Processed:</span>
-                      <span>{formatDateTime(claim.processed_at)}</span>
+                      <span>{formatDateTime(claim.claim.processed_at)}</span>
                     </div>
                   )}
                 </div>
@@ -240,11 +242,11 @@ const ClaimDetailsPage = () => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-muted-foreground text-sm">Name</p>
-                    <p className="font-medium">{claim.patient_name}</p>
+                    <p className="font-medium">{claim.claim.patient_name}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground text-sm">Patient ID</p>
-                    <p className="font-medium">{claim.patient_id}</p>
+                    <p className="text-sm text-muted-foreground">Patient ID</p>
+                    <p className="font-medium">{claim.claim.patient_id}</p>
                   </div>
                 </div>
               </Card>
@@ -259,11 +261,11 @@ const ClaimDetailsPage = () => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-muted-foreground text-sm">Provider</p>
-                    <p className="font-medium">{claim.insurance_provider}</p>
+                    <p className="font-medium">{claim.claim.insurance_provider}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground text-sm">Policy Number</p>
-                    <p className="font-medium">{claim.policy_number}</p>
+                    <p className="text-sm text-muted-foreground">Policy Number</p>
+                    <p className="font-medium">{claim.claim.policy_number}</p>
                   </div>
                 </div>
               </Card>
@@ -278,12 +280,12 @@ const ClaimDetailsPage = () => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-muted-foreground text-sm">Provider Name</p>
-                    <p className="font-medium">{claim.provider_name}</p>
+                    <p className="font-medium">{claim.claim.provider_name}</p>
                   </div>
-                  {claim.provider_npi && (
+                  {claim.claim.provider_npi && (
                     <div>
-                      <p className="text-muted-foreground text-sm">NPI</p>
-                      <p className="font-medium">{claim.provider_npi}</p>
+                      <p className="text-sm text-muted-foreground">Provider NPI</p>
+                      <p className="font-medium">{claim.claim.provider_npi}</p>
                     </div>
                   )}
                 </div>
@@ -329,23 +331,24 @@ const ClaimDetailsPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-muted-foreground text-sm">Diagnosis Code (ICD-10)</p>
-                  <p className="font-medium text-lg">{claim.diagnosis_code}</p>
+                  <p className="font-medium text-lg">{claim.claim.diagnosis_code}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Procedure Code (CPT)</p>
-                  <p className="font-medium text-lg">{claim.procedure_code}</p>
+                  <p className="font-medium text-lg">{claim.claim.procedure_code}</p>
                 </div>
               </div>
             </Card>
 
-            {claim.notes && (
+            {claim.claim.notes && (
               <Card className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Additional Notes</h3>
-                <p className="text-sm bg-accent/30 p-4 rounded-md">{claim.notes}</p>
+                <p className="text-sm bg-accent/30 p-4 rounded-md">{claim.claim.notes}</p>
               </Card>
             )}
 
-            {claim.exception_logs && claim.exception_logs.length > 0 && (
+            {/* TODO: Add exception_logs field to ClaimDetails interface once backend supports it */}
+            {/* {claim.exception_logs && claim.exception_logs.length > 0 && (
               <Card className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Exception Logs</h3>
                 <div className="space-y-3">
@@ -363,7 +366,7 @@ const ClaimDetailsPage = () => {
                   ))}
                 </div>
               </Card>
-            )}
+            )} */}
           </TabsContent>
 
           {/* Analysis Tab (Admin Only) */}
