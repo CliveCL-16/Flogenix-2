@@ -225,7 +225,7 @@ app.include_router(
 
 app.include_router(
     legacy_claims_router,
-    prefix="/api/legacy",
+    prefix="/api",
     tags=["Legacy Claims"]
 )
 

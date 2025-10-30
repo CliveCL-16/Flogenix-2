@@ -213,43 +213,78 @@ class AIProcessingService:
         """Get agent processing timeline for a claim"""
         # This would be stored/retrieved from database in production
         # For now, return mock data based on typical flow
-        return [
+        from datetime import datetime, timedelta
+
+        # Create unique agents with proper structure to avoid duplicates
+        agents = [
             {
                 "agent": "Intake Agent",
+                "agent_type": "intake",
                 "status": "completed",
                 "duration": 0.5,
-                "result": "validated",
-                "confidence": 95
+                "result": "Claim data validated successfully - all required fields present and properly formatted",
+                "confidence": 95,
+                "started_at": (datetime.now() - timedelta(seconds=4.5)).isoformat(),
+                "completed_at": (datetime.now() - timedelta(seconds=4)).isoformat(),
+                "reasoning_steps": 3,
+                "tools_used": 2
             },
             {
-                "agent": "Eligibility Agent", 
+                "agent": "Eligibility Agent",
+                "agent_type": "eligibility",
                 "status": "completed",
                 "duration": 1.2,
-                "result": "eligible",
-                "confidence": 90
+                "result": "Patient coverage verified - active insurance policy with $20 copay and full coverage for this service type",
+                "confidence": 90,
+                "started_at": (datetime.now() - timedelta(seconds=4)).isoformat(),
+                "completed_at": (datetime.now() - timedelta(seconds=2.8)).isoformat(),
+                "reasoning_steps": 4,
+                "tools_used": 1
             },
             {
                 "agent": "Clinical Review Agent",
-                "status": "completed", 
+                "agent_type": "clinical",
+                "status": "completed",
                 "duration": 0.8,
-                "result": "codes_valid",
-                "confidence": 95
+                "result": "Medical codes validated - ICD-10 Z00.00 (Routine health exam) and CPT 99213 are compatible and medically necessary",
+                "confidence": 95,
+                "started_at": (datetime.now() - timedelta(seconds=2.8)).isoformat(),
+                "completed_at": (datetime.now() - timedelta(seconds=2)).isoformat(),
+                "reasoning_steps": 5,
+                "tools_used": 2
             },
             {
                 "agent": "Fraud Detection Agent",
+                "agent_type": "fraud",
                 "status": "completed",
                 "duration": 1.5,
-                "result": "low_risk",
-                "confidence": 85
+                "result": "Low fraud risk detected - no duplicate claims found, provider history clean, claim amount within normal range for service",
+                "confidence": 85,
+                "started_at": (datetime.now() - timedelta(seconds=2)).isoformat(),
+                "completed_at": (datetime.now() - timedelta(seconds=0.5)).isoformat(),
+                "reasoning_steps": 6,
+                "tools_used": 3
             },
             {
                 "agent": "Adjudication Agent",
+                "agent_type": "adjudication",
                 "status": "completed",
                 "duration": 0.3,
-                "result": "approved",
-                "confidence": 88
+                "result": "Claim APPROVED for payment - all validation checks passed with high confidence across all processing stages",
+                "confidence": 88,
+                "started_at": (datetime.now() - timedelta(seconds=0.5)).isoformat(),
+                "completed_at": datetime.now().isoformat(),
+                "reasoning_steps": 2,
+                "tools_used": 1
             }
         ]
+
+        # Ensure no duplicates by using agent names as keys
+        unique_agents = {}
+        for agent in agents:
+            unique_agents[agent["agent"]] = agent
+
+        return list(unique_agents.values())
     
     def get_agent_reasoning(self, claim_id: str) -> Dict[str, List[Dict[str, Any]]]:
         """Get detailed reasoning steps from all agents"""

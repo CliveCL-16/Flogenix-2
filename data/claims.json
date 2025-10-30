@@ -49,5 +49,22 @@
     "status": "PENDING_REVIEW",
     "created_at": "2024-10-26T16:45:00",
     "processed_at": "2024-10-27T11:20:00"
+  },
+  {
+    "patient_name": "Bob Wilson",
+    "patient_id": "PAT-789",
+    "insurance_provider": "United Healthcare",
+    "policy_number": "POL-11111",
+    "diagnosis_code": "Z00.00",
+    "procedure_code": "99213",
+    "claim_amount": 500.0,
+    "service_date": "2025-10-28",
+    "provider_name": "Dr. Sarah ",
+    "provider_npi": "5556667777",
+    "notes": "",
+    "claim_id": "CLM-69D74A5E",
+    "status": "PENDING",
+    "created_at": "2025-10-30T11:10:50.059286",
+    "processed_at": null
   }
 ]

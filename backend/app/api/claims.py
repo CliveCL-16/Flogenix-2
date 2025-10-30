@@ -194,10 +194,18 @@ async def get_agent_timeline(claim_id: str):
         raise HTTPException(status_code=404, detail="Claim not found")
     
     agents = ai_service.get_agent_timeline(claim_id)
-    
+
+    # Remove duplicates based on agent name
+    seen_agents = set()
+    unique_agents = []
+    for agent in agents:
+        if agent["agent"] not in seen_agents:
+            unique_agents.append(agent)
+            seen_agents.add(agent["agent"])
+
     return AgentTimelineResponse(
         claim_id=claim_id,
-        agents=agents
+        agents=unique_agents
     )
 
 

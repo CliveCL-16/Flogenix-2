@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Activity, FileText, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, ClaimSubmission } from "@/lib/api";
@@ -27,11 +28,45 @@ const SubmitClaim = () => {
     notes: ""
   });
 
+  // Medical code options based on backend validation
+  const diagnosisCodes = [
+    { value: "Z00.00", label: "Z00.00 - General adult medical examination" },
+    { value: "M25.511", label: "M25.511 - Pain in right shoulder" },
+    { value: "E11.9", label: "E11.9 - Type 2 diabetes mellitus" },
+    { value: "J06.9", label: "J06.9 - Acute upper respiratory infection" },
+    { value: "K21.9", label: "K21.9 - Gastro-esophageal reflux disease" },
+    { value: "M79.3", label: "M79.3 - Panniculitis, unspecified" },
+    { value: "I10", label: "I10 - Essential hypertension" },
+    { value: "C50.1", label: "C50.1 - Breast cancer (central portion)" },
+    { value: "C50.2", label: "C50.2 - Breast cancer (upper-inner quadrant)" },
+    { value: "I21.0", label: "I21.0 - ST elevation myocardial infarction" },
+    { value: "I63.1", label: "I63.1 - Cerebral infarction due to embolism" },
+    { value: "I63.2", label: "I63.2 - Cerebral infarction, unspecified" }
+  ];
+
+  const procedureCodes = [
+    { value: "99213", label: "99213 - Office visit, established patient, low complexity" },
+    { value: "99214", label: "99214 - Office visit, established patient, moderate complexity" },
+    { value: "99215", label: "99215 - Office visit, established patient, high complexity" },
+    { value: "92004", label: "92004 - Ophthalmological examination and evaluation" },
+    { value: "27447", label: "27447 - Arthroplasty, knee, condyle and plateau" },
+    { value: "73721", label: "73721 - MRI lower extremity other than joint" },
+    { value: "36415", label: "36415 - Collection of venous blood by venipuncture" },
+    { value: "85025", label: "85025 - Blood count; complete (CBC), automated" }
+  ];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: name === 'claim_amount' ? parseFloat(value) || 0 : value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
     }));
   };
 
@@ -163,26 +198,34 @@ const SubmitClaim = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="diagnosis_code">Diagnosis Code (ICD-10) *</Label>
-                  <Input
-                    id="diagnosis_code"
-                    name="diagnosis_code"
-                    value={formData.diagnosis_code}
-                    onChange={handleChange}
-                    required
-                    placeholder="e.g., Z00.01"
-                  />
+                  <Select value={formData.diagnosis_code} onValueChange={(value) => handleSelectChange('diagnosis_code', value)} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select diagnosis code" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {diagnosisCodes.map((code) => (
+                        <SelectItem key={code.value} value={code.value}>
+                          {code.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="procedure_code">Procedure Code (CPT) *</Label>
-                  <Input
-                    id="procedure_code"
-                    name="procedure_code"
-                    value={formData.procedure_code}
-                    onChange={handleChange}
-                    required
-                    placeholder="e.g., 99213"
-                  />
+                  <Select value={formData.procedure_code} onValueChange={(value) => handleSelectChange('procedure_code', value)} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select procedure code" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {procedureCodes.map((code) => (
+                        <SelectItem key={code.value} value={code.value}>
+                          {code.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">

@@ -428,19 +428,57 @@ const ClaimDetailsPage = () => {
                     <Brain className="w-6 h-6 text-info" />
                     <h3 className="text-lg font-semibold">Agent Processing Timeline</h3>
                   </div>
-                  
-                  <div className="space-y-4">
+
+                  <div className="space-y-6">
                     {agentTimeline.agents?.map((agent: any, index: number) => (
-                      <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <CheckCircle className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">{agent.name}</h4>
-                          <p className="text-sm text-muted-foreground">{agent.description}</p>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {agent.duration && `${agent.duration}s`}
+                      <div key={index} className="border rounded-lg p-6 bg-card hover:shadow-md transition-shadow">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
+                            <CheckCircle className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold text-lg text-foreground">{agent.agent}</h4>
+                              <Badge variant="outline" className="text-xs">
+                                {agent.agent_type}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                              {agent.result}
+                            </p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-muted-foreground" />
+                                <span className="text-muted-foreground">Duration:</span>
+                                <span className="font-medium">{agent.duration}s</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Brain className="w-3 h-3 text-muted-foreground" />
+                                <span className="text-muted-foreground">Confidence:</span>
+                                <span className="font-medium">{agent.confidence}%</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Settings className="w-3 h-3 text-muted-foreground" />
+                                <span className="text-muted-foreground">Steps:</span>
+                                <span className="font-medium">{agent.reasoning_steps}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Activity className="w-3 h-3 text-muted-foreground" />
+                                <span className="text-muted-foreground">Tools:</span>
+                                <span className="font-medium">{agent.tools_used}</span>
+                              </div>
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-border/50">
+                              <p className="text-xs text-muted-foreground">
+                                Completed: {new Date(agent.completed_at).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            <Badge variant={agent.status === 'completed' ? 'success' : 'secondary'} className="text-xs">
+                              {agent.status}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     ))}

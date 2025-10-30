@@ -542,26 +542,55 @@ async def get_agent_timeline(
     
     # Get agent reports
     agent_reports = db.query(AgentReport).filter(AgentReport.claim_id == claim_id).all()
-    
+
     agents = []
     total_processing_time = 0
-    
-    for report in agent_reports:
-        agents.append({
-            "agent": report.agent_name,
-            "agent_type": report.agent_type,
-            "status": report.status.value,
-            "duration": report.duration_seconds or 0,
-            "result": report.result,
-            "confidence": report.confidence_score,
-            "started_at": report.started_at,
-            "completed_at": report.completed_at,
-            "reasoning_steps": len(report.reasoning_steps or []),
-            "tools_used": len(report.tool_usage or [])
-        })
-        
-        if report.duration_seconds:
-            total_processing_time += report.duration_seconds
+    seen_agents = set()  # Track unique agent names
+
+    # If no agent reports in database, use mock data
+    if not agent_reports:
+        from app.services.ai_processing import AIProcessingService
+        ai_service = AIProcessingService()
+        mock_agents = ai_service.get_agent_timeline(claim_id)
+
+        for agent in mock_agents:
+            agents.append({
+                "agent": agent["agent"],
+                "agent_type": agent["agent_type"],
+                "status": agent["status"],
+                "duration": agent["duration"],
+                "result": agent["result"],
+                "confidence": agent["confidence"],
+                "started_at": agent["started_at"],
+                "completed_at": agent["completed_at"],
+                "reasoning_steps": agent["reasoning_steps"],
+                "tools_used": agent["tools_used"]
+            })
+            total_processing_time += agent["duration"]
+    else:
+        # Use database records
+        for report in agent_reports:
+            # Skip if we've already seen this agent
+            if report.agent_name in seen_agents:
+                continue
+
+            agents.append({
+                "agent": report.agent_name,
+                "agent_type": report.agent_type,
+                "status": report.status.value,
+                "duration": report.duration_seconds or 0,
+                "result": report.result,
+                "confidence": report.confidence_score,
+                "started_at": report.started_at,
+                "completed_at": report.completed_at,
+                "reasoning_steps": len(report.reasoning_steps or []),
+                "tools_used": len(report.tool_usage or [])
+            })
+
+            seen_agents.add(report.agent_name)
+
+            if report.duration_seconds:
+                total_processing_time += report.duration_seconds
     
     # Get final decision
     decision_log = db.query(DecisionLog).filter(DecisionLog.claim_id == claim_id).first()
