@@ -23,12 +23,12 @@ export interface UserInfo {
 }
 
 export enum ClaimStatus {
-  PENDING = 'pending',
-  PROCESSING = 'processing',
-  APPROVED = 'approved',
-  DENIED = 'denied',
-  PENDING_REVIEW = 'pending_review',
-  FRAUD_FLAGGED = 'fraud_flagged'
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  APPROVED = 'APPROVED',
+  DENIED = 'DENIED',
+  PENDING_REVIEW = 'PENDING_REVIEW',
+  FRAUD_FLAGGED = 'FRAUD_FLAGGED'
 }
 
 export interface AuthResponse {
@@ -173,6 +173,7 @@ class ApiClient {
       'Content-Type': 'application/json',
     };
 
+    // Add authorization header if token is available
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
@@ -235,7 +236,7 @@ class ApiClient {
     return this.handleResponse<UserInfo>(response);
   }
 
-  // Claims
+  // Claims - Updated to use unified API structure
   async submitClaim(claimData: ClaimSubmission): Promise<Claim> {
     const response = await fetch(`${this.baseURL}/api/claims/submit`, {
       method: 'POST',
@@ -293,17 +294,30 @@ class ApiClient {
     return this.handleResponse<ClaimDetails>(response);
   }
 
-  async processClaim(claimId: string, priority?: number): Promise<any> {
+  async processClaim(claimId: string, options?: {
+    priority?: number;
+    async_processing?: boolean;
+  }): Promise<{
+    claim_id: string;
+    status: string;
+    confidence_score?: number;
+    reasoning?: string;
+    fraud_score?: number;
+    processing_time?: number;
+    async: boolean;
+    task_id?: string;
+    message?: string;
+  }> {
     const response = await fetch(`${this.baseURL}/api/claims/${claimId}/process`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify({
-        priority: priority || 1,
-        async_processing: true,
+        priority: options?.priority || 1,
+        async_processing: options?.async_processing ?? true,
       }),
     });
 
-    return this.handleResponse<any>(response);
+    return this.handleResponse(response);
   }
 
   async exportClaims(params?: { claim_ids?: string[] }): Promise<string> {
@@ -332,7 +346,9 @@ class ApiClient {
   // Agent Processing
   async getAgentTimeline(claimId: string): Promise<AgentTimeline> {
     const response = await fetch(`${this.baseURL}/api/claims/${claimId}/agent-timeline`, {
-      headers: this.getHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     return this.handleResponse<AgentTimeline>(response);
@@ -340,7 +356,9 @@ class ApiClient {
 
   async getAgentReasoning(claimId: string): Promise<{ claim_id: string; agent_reasoning: Record<string, any[]> }> {
     const response = await fetch(`${this.baseURL}/api/claims/${claimId}/agent-reasoning`, {
-      headers: this.getHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     return this.handleResponse<{ claim_id: string; agent_reasoning: Record<string, any[]> }>(response);
@@ -348,7 +366,9 @@ class ApiClient {
 
   async getToolUsage(claimId: string): Promise<{ claim_id: string; tool_usage: any[] }> {
     const response = await fetch(`${this.baseURL}/api/claims/${claimId}/tool-usage`, {
-      headers: this.getHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     return this.handleResponse<{ claim_id: string; tool_usage: any[] }>(response);
@@ -402,14 +422,6 @@ class ApiClient {
 
   async getQueuedClaims(): Promise<any[]> {
     const response = await fetch(`${this.baseURL}/api/admin/queue`, {
-      headers: this.getHeaders(),
-    });
-
-    return this.handleResponse<any[]>(response);
-  }
-
-  async getAgentMetrics(): Promise<any[]> {
-    const response = await fetch(`${this.baseURL}/api/admin/agents/metrics`, {
       headers: this.getHeaders(),
     });
 
@@ -480,6 +492,247 @@ class ApiClient {
       headers: this.getHeaders(),
     });
 
+    return this.handleResponse<any>(response);
+  }
+
+  // Enhanced Analytics API
+  async getAnalyticsOverview(days: number = 30): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/analytics/overview?days=${days}`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getPerformanceAnalytics(days: number = 30, agentFilter?: string): Promise<any> {
+    const url = new URL(`${this.baseURL}/api/analytics/performance`);
+    url.searchParams.set('days', days.toString());
+    if (agentFilter) url.searchParams.set('agent_filter', agentFilter);
+    
+    const response = await fetch(url.toString(), {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getFraudAnalytics(days: number = 30): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/analytics/fraud?days=${days}`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getFinancialAnalytics(days: number = 30): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/analytics/financial?days=${days}`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getTrendAnalysis(metric: string, period: string = 'daily', days: number = 30): Promise<any> {
+    const response = await fetch(
+      `${this.baseURL}/api/analytics/trends?metric=${metric}&period=${period}&days=${days}`,
+      { headers: this.getHeaders() }
+    );
+    return this.handleResponse<any>(response);
+  }
+
+  // User Dashboard API
+  async getUserDashboardMetrics(): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/analytics/dashboard/user/metrics`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getUserNotifications(limit: number = 10): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/analytics/dashboard/user/notifications?limit=${limit}`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  // Claim Tracking API
+  async getClaimTimeline(claimId: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/claims/${claimId}/agent-timeline`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getClaimAIAnalysis(claimId: string): Promise<any> {
+    // Note: This endpoint currently has database issues, will return gracefully
+    try {
+      const response = await fetch(`${this.baseURL}/api/claims/${claimId}/ai-analysis`, {
+        headers: this.getHeaders(),
+      });
+      return this.handleResponse<any>(response);
+    } catch (error) {
+      // Return empty analysis if endpoint is not available
+      return {
+        decision: '',
+        confidence_score: 0,
+        risk_level: '',
+        reasoning: '',
+        next_steps: '',
+        fraud_indicators: []
+      };
+    }
+  }
+
+  // Reports API
+  async getAutomatedReports(reportType?: string): Promise<any> {
+    const url = new URL(`${this.baseURL}/api/analytics/reports/automated`);
+    if (reportType) url.searchParams.set('report_type', reportType);
+    
+    const response = await fetch(url.toString(), {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async scheduleReport(reportConfig: any): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/analytics/reports/schedule`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(reportConfig),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async exportAnalytics(reportType: string, format: string = 'csv', days: number = 30): Promise<any> {
+    const url = new URL(`${this.baseURL}/api/analytics/export`);
+    url.searchParams.set('report_type', reportType);
+    url.searchParams.set('format', format);
+    url.searchParams.set('days', days.toString());
+    
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  // Admin Dashboard API
+  async getAdminKPIs(days: number = 30): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/admin/dashboard/kpis?days=${days}`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getClaimsQueue(statusFilter?: string, priorityFilter?: number, limit: number = 50, offset: number = 0): Promise<any> {
+    const url = new URL(`${this.baseURL}/api/admin/dashboard/claims-queue`);
+    if (statusFilter) url.searchParams.set('status_filter', statusFilter);
+    if (priorityFilter) url.searchParams.set('priority_filter', priorityFilter.toString());
+    url.searchParams.set('limit', limit.toString());
+    url.searchParams.set('offset', offset.toString());
+    
+    const response = await fetch(url.toString(), {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getSystemHealth(): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/admin/dashboard/system-health`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getAIDecisionSupport(days: number = 7): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/admin/dashboard/ai-decision-support?days=${days}`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  // AI System Monitoring API
+  async getAISystemHealth(): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/ai/monitoring/system-health`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getModelPerformance(): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/ai/monitoring/model-performance`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getAgentMetrics(agentType?: string, hours: number = 24): Promise<any> {
+    const url = new URL(`${this.baseURL}/api/ai/monitoring/agent-metrics`);
+    if (agentType) url.searchParams.set('agent_type', agentType);
+    url.searchParams.set('hours', hours.toString());
+    
+    const response = await fetch(url.toString(), {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  // Document Processing API
+  async getDocumentOCRResults(documentId: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/documents/${documentId}/ocr-results`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getDocumentValidation(documentId: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/documents/${documentId}/validation`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getClaimDocuments(claimId: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/documents/claim/${claimId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async reprocessDocument(documentId: string, provider?: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/documents/${documentId}/reprocess`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ provider }),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  // Claims Management API
+  async getClaimDetailedReview(claimId: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/enterprise/claims/claims/${claimId}/detailed-review`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async getClaimCommunicationHistory(claimId: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/enterprise/claims/claims/${claimId}/communication-history`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<any>(response);
+  }
+
+  async submitManualDecision(claimId: string, decision: string, reasoning: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/api/enterprise/claims/claims/${claimId}/manual-decision`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ decision, reasoning }),
+    });
     return this.handleResponse<any>(response);
   }
 

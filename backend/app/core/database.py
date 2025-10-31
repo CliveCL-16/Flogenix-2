@@ -83,7 +83,8 @@ class DatabaseManager:
 
             # Test the connection
             with engine.connect() as conn:
-                conn.execute("SELECT 1")
+                from sqlalchemy import text
+                conn.execute(text("SELECT 1"))
 
             logger.info(f"Created database engine for: {database_url}")
             return engine

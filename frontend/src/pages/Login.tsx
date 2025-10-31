@@ -101,7 +101,7 @@ const Login = () => {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-2">
           <Button 
             variant="ghost" 
             size="sm"
@@ -109,6 +109,16 @@ const Login = () => {
           >
             Back to Home
           </Button>
+          <div>
+            <Button 
+              variant="link" 
+              size="sm"
+              onClick={() => navigate(`/login?type=${type === 'admin' ? 'user' : 'admin'}`)}
+              className="text-sm text-muted-foreground"
+            >
+              {type === 'admin' ? 'Switch to User Login' : 'Switch to Admin Login'}
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

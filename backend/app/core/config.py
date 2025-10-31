@@ -31,14 +31,28 @@ class SecuritySettings(BaseSettings):
 
 class AISettings(BaseSettings):
     """AI and ML configuration"""
+    # Gemini API configuration
+    gemini_api_key: Optional[str] = Field(default=None, env="GEMINI_API_KEY")
+    gemini_model: str = Field(default="gemini-2.5-flash", env="GEMINI_MODEL")
+    gemini_temperature: float = Field(default=0.1, env="GEMINI_TEMPERATURE")
+    max_tokens: int = Field(default=2000, env="GEMINI_MAX_TOKENS")
+    
+    # Legacy OpenAI support (for migration)
     openai_api_key: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-4", env="OPENAI_MODEL")
     openai_temperature: float = Field(default=0.1, env="OPENAI_TEMPERATURE")
-    max_tokens: int = Field(default=2000, env="OPENAI_MAX_TOKENS")
     
     # Agent configuration
     max_agent_processing_time: int = Field(default=300, env="MAX_AGENT_PROCESSING_TIME")  # seconds
     agent_retry_attempts: int = Field(default=3, env="AGENT_RETRY_ATTEMPTS")
+    
+    # Advanced AI features
+    enable_autonomous_exceptions: bool = Field(default=True, env="ENABLE_AUTONOMOUS_EXCEPTIONS")
+    enable_continuous_learning: bool = Field(default=True, env="ENABLE_CONTINUOUS_LEARNING")
+    enable_dynamic_triage: bool = Field(default=True, env="ENABLE_DYNAMIC_TRIAGE")
+    enable_predictive_fraud: bool = Field(default=True, env="ENABLE_PREDICTIVE_FRAUD")
+    enable_ai_customer_support: bool = Field(default=True, env="ENABLE_AI_CUSTOMER_SUPPORT")
+    enable_human_in_loop: bool = Field(default=True, env="ENABLE_HUMAN_IN_LOOP")
     
 class RedisSettings(BaseSettings):
     """Redis configuration for caching and async processing"""

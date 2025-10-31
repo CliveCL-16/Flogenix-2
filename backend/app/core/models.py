@@ -47,6 +47,24 @@ class AuditAction(PyEnum):
     APPROVE = "APPROVE"
     DENY = "DENY"
 
+class DocumentType(PyEnum):
+    MEDICAL_BILL = "MEDICAL_BILL"
+    INSURANCE_CARD = "INSURANCE_CARD"
+    PRESCRIPTION = "PRESCRIPTION"
+    MEDICAL_REPORT = "MEDICAL_REPORT"
+    REFERRAL = "REFERRAL"
+    LAB_RESULT = "LAB_RESULT"
+    IMAGING = "IMAGING"
+    AUTHORIZATION = "AUTHORIZATION"
+    OTHER = "OTHER"
+
+class DocumentStatus(PyEnum):
+    UPLOADED = "UPLOADED"
+    PROCESSING = "PROCESSING"
+    PROCESSED = "PROCESSED"
+    FAILED = "FAILED"
+    ARCHIVED = "ARCHIVED"
+
 # User Management Models
 class User(Base):
     __tablename__ = "users"
@@ -142,6 +160,7 @@ class Claim(Base):
     agent_reports = relationship("AgentReport", back_populates="claim")
     fraud_analyses = relationship("FraudAnalysis", back_populates="claim")
     exceptions = relationship("Exception", back_populates="claim")
+    documents = relationship("ClaimDocument", back_populates="claim")
 
 class DecisionLog(Base):
     __tablename__ = "decision_logs"
@@ -244,6 +263,120 @@ class Exception(Base):
     # Relationships
     claim = relationship("Claim", back_populates="exceptions")
     resolved_by = relationship("User")
+
+# Document Management Models
+class ClaimDocument(Base):
+    __tablename__ = "claim_documents"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(String(50), unique=True, index=True, nullable=False)
+    
+    # Document Information
+    filename = Column(String(255), nullable=False)
+    original_filename = Column(String(255), nullable=False)
+    file_path = Column(String(500), nullable=False)
+    file_size = Column(Integer, nullable=False)
+    content_type = Column(String(100), nullable=False)
+    file_hash = Column(String(64))  # SHA-256 hash for integrity
+    
+    # Classification
+    document_type = Column(Enum(DocumentType), default=DocumentType.OTHER, nullable=False)
+    status = Column(Enum(DocumentStatus), default=DocumentStatus.UPLOADED, nullable=False)
+    
+    # Relationships
+    claim_id = Column(String(50), ForeignKey("claims.claim_id"))
+    uploaded_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    # OCR Processing
+    ocr_processed = Column(Boolean, default=False, nullable=False)
+    ocr_provider = Column(String(50))  # tesseract, google, azure, openai
+    ocr_confidence = Column(Float)
+    ocr_processing_time = Column(Float)
+    extracted_text = Column(Text)
+    extracted_fields = Column(JSON)
+    ocr_raw_data = Column(JSON)
+    ocr_error = Column(Text)
+    
+    # Processing Timestamps
+    uploaded_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    processed_at = Column(DateTime)
+    last_accessed = Column(DateTime)
+    
+    # Security and Compliance
+    encryption_key_id = Column(String(100))  # For encrypted storage
+    retention_until = Column(DateTime)  # Data retention policy
+    is_archived = Column(Boolean, default=False, nullable=False)
+    
+    # Audit Fields
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    # Relationships
+    claim = relationship("Claim", back_populates="documents")
+    uploaded_by = relationship("User")
+    processing_logs = relationship("DocumentProcessingLog", back_populates="document")
+
+class DocumentProcessingLog(Base):
+    __tablename__ = "document_processing_logs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(String(50), ForeignKey("claim_documents.document_id"), nullable=False)
+    
+    # Processing Information
+    processing_type = Column(String(50), nullable=False)  # ocr, validation, extraction
+    processor = Column(String(100), nullable=False)  # Provider or service name
+    status = Column(String(20), nullable=False)  # started, completed, failed
+    
+    # Results
+    processing_time_seconds = Column(Float)
+    result_data = Column(JSON)
+    error_message = Column(Text)
+    
+    # Configuration
+    processing_config = Column(JSON)  # Provider settings, parameters
+    
+    # Audit Fields
+    started_at = Column(DateTime, nullable=False)
+    completed_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    # Relationships
+    document = relationship("ClaimDocument", back_populates="processing_logs")
+
+class DocumentTemplate(Base):
+    __tablename__ = "document_templates"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(String(50), unique=True, index=True, nullable=False)
+    
+    # Template Information
+    name = Column(String(255), nullable=False)
+    description = Column(Text)
+    document_type = Column(Enum(DocumentType), nullable=False)
+    
+    # Field Extraction Rules
+    field_extraction_rules = Column(JSON, nullable=False)  # Regex patterns, coordinates
+    validation_rules = Column(JSON)  # Field validation rules
+    
+    # Template Matching
+    template_patterns = Column(JSON)  # OCR patterns to identify this template
+    confidence_threshold = Column(Float, default=0.8)
+    
+    # Usage Statistics
+    usage_count = Column(Integer, default=0)
+    success_rate = Column(Float, default=0.0)
+    
+    # Version Control
+    version = Column(String(20), default="1.0")
+    is_active = Column(Boolean, default=True, nullable=False)
+    
+    # Audit Fields
+    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    # Relationships
+    created_by = relationship("User")
 
 # Audit and Compliance Models
 class AuditLog(Base):

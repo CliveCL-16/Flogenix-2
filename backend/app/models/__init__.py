@@ -38,6 +38,26 @@ class AgentStatus(str, Enum):
     FAILED = "FAILED"
 
 
+class DocumentType(str, Enum):
+    MEDICAL_BILL = "MEDICAL_BILL"
+    INSURANCE_CARD = "INSURANCE_CARD"
+    PRESCRIPTION = "PRESCRIPTION"
+    MEDICAL_REPORT = "MEDICAL_REPORT"
+    REFERRAL = "REFERRAL"
+    LAB_RESULT = "LAB_RESULT"
+    IMAGING = "IMAGING"
+    AUTHORIZATION = "AUTHORIZATION"
+    OTHER = "OTHER"
+
+
+class DocumentStatus(str, Enum):
+    UPLOADED = "UPLOADED"
+    PROCESSING = "PROCESSING"
+    PROCESSED = "PROCESSED"
+    FAILED = "FAILED"
+    ARCHIVED = "ARCHIVED"
+
+
 class ReasoningStep(BaseModel):
     step: int
     type: str  # "REASON", "ACT", "OBSERVE", "COMPLETE"
@@ -178,3 +198,101 @@ class AgentReasoningResponse(BaseModel):
 class ToolUsageResponse(BaseModel):
     claim_id: str
     tool_usage: List[Dict[str, Any]]
+
+
+# Document Management Models
+class DocumentInfo(BaseModel):
+    """Document information model"""
+    document_id: str
+    filename: str
+    file_size: int
+    content_type: str
+    document_type: DocumentType
+    status: DocumentStatus
+    uploaded_at: datetime
+    uploaded_by: str
+    claim_id: Optional[str] = None
+
+
+class DocumentOCRResult(BaseModel):
+    """OCR processing result"""
+    processed: bool
+    provider: Optional[str] = None
+    confidence: Optional[float] = None
+    processing_time: Optional[float] = None
+    extracted_text: Optional[str] = None
+    extracted_fields: Dict[str, Any] = {}
+    error: Optional[str] = None
+
+
+class DocumentDetail(DocumentInfo):
+    """Detailed document information including OCR results"""
+    ocr_result: Optional[DocumentOCRResult] = None
+    file_hash: Optional[str] = None
+    last_accessed: Optional[datetime] = None
+    processing_history: List[Dict[str, Any]] = []
+
+
+class DocumentUploadRequest(BaseModel):
+    """Request model for document upload"""
+    claim_id: Optional[str] = None
+    document_type: DocumentType = DocumentType.OTHER
+    process_ocr: bool = True
+    ocr_provider: Optional[str] = None
+
+
+class DocumentSearchRequest(BaseModel):
+    """Request model for document search"""
+    claim_id: Optional[str] = None
+    document_type: Optional[DocumentType] = None
+    status: Optional[DocumentStatus] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    has_ocr: Optional[bool] = None
+    filename_pattern: Optional[str] = None
+
+
+class DocumentProcessingRequest(BaseModel):
+    """Request model for document processing"""
+    document_id: str
+    ocr_provider: Optional[str] = Field(None, description="Specific OCR provider to use")
+    extract_fields: bool = Field(True, description="Whether to extract medical fields")
+    template_id: Optional[str] = Field(None, description="Document template to use")
+
+
+class DocumentBatchProcessingRequest(BaseModel):
+    """Request model for batch document processing"""
+    document_ids: List[str]
+    ocr_provider: Optional[str] = None
+    extract_fields: bool = True
+    priority: int = Field(1, ge=1, le=3)
+
+
+class DocumentTemplate(BaseModel):
+    """Document template model"""
+    template_id: str
+    name: str
+    description: Optional[str] = None
+    document_type: DocumentType
+    field_extraction_rules: Dict[str, Any]
+    validation_rules: Dict[str, Any] = {}
+    confidence_threshold: float = 0.8
+    version: str = "1.0"
+    is_active: bool = True
+
+
+class DocumentStats(BaseModel):
+    """Document processing statistics"""
+    total_documents: int
+    processed_documents: int
+    pending_documents: int
+    failed_documents: int
+    total_size_bytes: int
+    avg_confidence: float
+    processing_stats: Dict[str, int]
+    provider_stats: Dict[str, int]
+
+
+class ClaimWithDocuments(Claim):
+    """Claim model with attached documents"""
+    documents: List[DocumentInfo] = []

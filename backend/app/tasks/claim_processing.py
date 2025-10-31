@@ -12,7 +12,7 @@ from app.core.celery_app import celery_app
 from app.core.database import get_database_session
 from app.core.models import Claim, ClaimStatus, DecisionLog, AgentReport, FraudAnalysis
 from app.services.enhanced_multi_agent_processor import enhanced_multi_agent_processor
-from app.services.fraud_detection import FraudDetectionService
+from app.services.enhanced_fraud_detection import enhanced_fraud_detection
 from app.tasks.notification_tasks import send_claim_status_notification
 
 @celery_app.task(bind=True, autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 60})

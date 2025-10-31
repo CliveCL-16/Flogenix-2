@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const token = localStorage.getItem('access_token');
         if (token) {
+          apiClient.setToken(token); // Ensure API client has the token
           const userData = await apiClient.getCurrentUser();
           setUser(userData);
         }
@@ -58,6 +59,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             role: type === 'admin' ? 'ADMIN' : 'USER',
             two_factor_enabled: false
           });
+          // Set a demo token for API calls
+          apiClient.setToken('demo-token');
         }
       } finally {
         setLoading(false);
@@ -88,6 +91,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         setUser(demoUser);
         localStorage.setItem('demo_auth', JSON.stringify({ type: 'user', name: 'Sarah Johnson' }));
+        apiClient.setToken('demo-token'); // Set demo token for API calls
         
         return {
           access_token: 'demo-token',
@@ -110,6 +114,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         setUser(demoAdmin);
         localStorage.setItem('demo_auth', JSON.stringify({ type: 'admin', name: 'Admin User' }));
+        apiClient.setToken('demo-admin-token'); // Set demo token for API calls
         
         return {
           access_token: 'demo-admin-token',

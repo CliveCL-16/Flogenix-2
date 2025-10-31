@@ -31,7 +31,7 @@ class SystemValidator:
             "frontend_health": False,
             "authentication": False,
             "claims_processing": False,
-            "ai_processing": False,
+            "enhanced_ai_processing": False,
             "notifications": False,
             "websocket": False,
             "admin_functions": False,
@@ -226,10 +226,10 @@ class SystemValidator:
             self.add_error(f"Claims processing test failed: {str(e)}")
             return False
     
-    def validate_ai_processing(self) -> bool:
-        """Validate AI processing capabilities"""
+    def validate_enhanced_ai_processing(self) -> bool:
+        """Validate enhanced multi-agent AI processing capabilities"""
         try:
-            self.log("Testing AI processing...")
+            self.log("Testing enhanced multi-agent AI processing...")
             
             if not self.auth_token:
                 self.add_error("No authentication token for AI test")
@@ -531,7 +531,7 @@ class SystemValidator:
         self.test_results["frontend_health"] = self.validate_frontend_health()
         self.test_results["authentication"] = self.validate_authentication()
         self.test_results["claims_processing"] = self.validate_claims_processing()
-        self.test_results["ai_processing"] = self.validate_ai_processing()
+        self.test_results["enhanced_ai_processing"] = self.validate_enhanced_ai_processing()
         self.test_results["notifications"] = self.validate_notifications()
         self.test_results["websocket"] = await self.validate_websocket()
         self.test_results["admin_functions"] = self.validate_admin_functions()
@@ -592,8 +592,8 @@ class SystemValidator:
         if not self.test_results["frontend_health"]:
             self.log("- Ensure frontend server is running on port 5173")
         
-        if not self.test_results["ai_processing"]:
-            self.log("- Check OpenAI API key configuration")
+        if not self.test_results["enhanced_ai_processing"]:
+            self.log("- Check enhanced multi-agent processor configuration")
             self.log("- Verify AI processing service is properly configured")
         
         if not self.test_results["websocket"]:

@@ -69,10 +69,9 @@ async def test_multi_agent_imports():
     try:
         import sys
         sys.path.append("backend")
-        from app.services.multi_agent_processor import MultiAgentProcessor
-        from app.services import agent_tools  # Test agent tools module
-        processor = MultiAgentProcessor()
-        return hasattr(processor, 'process_claim_async')
+        from app.services.enhanced_multi_agent_processor import enhanced_multi_agent_processor
+        processor = enhanced_multi_agent_processor
+        return hasattr(processor, 'process_claim')
     except ImportError as e:
         print(f"Import error: {e}")
         return False

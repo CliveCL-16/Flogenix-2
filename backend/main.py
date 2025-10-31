@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from app.api.claims import router as claims_router
+from app.api.enterprise_claims import router as claims_router
 
 # Create FastAPI app
 app = FastAPI(

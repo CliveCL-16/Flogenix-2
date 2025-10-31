@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,12 +22,34 @@ import { apiClient, DashboardMetrics, Claim, formatCurrency, formatDateTime, get
 import { useToast } from '@/hooks/use-toast';
 
 export default function EnterpriseIndex() {
-  const { user, hasRole } = useAuth();
+  const { user, hasRole, login, logout } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [recentClaims, setRecentClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Auto-login with demo credentials for development
+  useEffect(() => {
+    const autoLogin = async () => {
+      if (!user && process.env.NODE_ENV === 'development') {
+        try {
+          await login({
+            email_or_username: 'user@demo.com',
+            password: 'user123'
+          });
+          toast({
+            title: 'Demo Login',
+            description: 'Automatically logged in with demo user credentials.',
+          });
+        } catch (error) {
+          console.error('Auto-login failed:', error);
+        }
+      }
+    };
+    autoLogin();
+  }, [user, login, toast]);
 
   const loadDashboardData = async () => {
     try {
@@ -102,7 +125,125 @@ export default function EnterpriseIndex() {
               <Badge variant="secondary" className="text-sm">
                 {user?.role}
               </Badge>
+              <Button 
+                variant="outline" 
+                onClick={async () => {
+                  await logout();
+                  navigate('/login');
+                }}
+                className="flex items-center gap-2"
+              >
+                Logout
+              </Button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Debug/Login Section for Development */}
+      {process.env.NODE_ENV === 'development' && !user && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Card className="bg-blue-50 border-blue-200">
+            <CardHeader>
+              <CardTitle className="text-blue-800">Demo Authentication</CardTitle>
+              <CardDescription className="text-blue-600">
+                Choose a demo user to test the system
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex gap-3">
+                <Button 
+                  onClick={async () => {
+                    try {
+                      await login({ email_or_username: 'user@demo.com', password: 'user123' });
+                      toast({ title: 'Success', description: 'Logged in as demo user' });
+                    } catch (error) {
+                      toast({ title: 'Error', description: 'Login failed', variant: 'destructive' });
+                    }
+                  }}
+                  className="flex-1"
+                >
+                  Login as User (Sarah Johnson)
+                </Button>
+                <Button 
+                  onClick={async () => {
+                    try {
+                      await login({ email_or_username: 'admin@demo.com', password: 'admin123' });
+                      toast({ title: 'Success', description: 'Logged in as demo admin' });
+                    } catch (error) {
+                      toast({ title: 'Error', description: 'Login failed', variant: 'destructive' });
+                    }
+                  }}
+                  variant="destructive"
+                  className="flex-1"
+                >
+                  Login as Admin
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Portal Selection Section */}
+      <div className="bg-gray-50 border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* User Portal Card */}
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/enterprise/user/submit-claim')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  User Portal
+                </CardTitle>
+                <CardDescription>
+                  Submit and manage your healthcare claims
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Button className="w-full" onClick={(e) => { 
+                    e.stopPropagation(); 
+                    console.log('Portal card: Navigating to submit claim');
+                    navigate('/enterprise/user/submit-claim'); 
+                  }}>
+                    Submit New Claim
+                  </Button>
+                  <Button variant="outline" className="w-full" onClick={(e) => { 
+                    e.stopPropagation(); 
+                    console.log('Portal card: Navigating to view claims');
+                    navigate('/enterprise/user/claims'); 
+                  }}>
+                    View My Claims
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Admin Portal Card - Only for Admins */}
+            {hasRole(['ADMIN', 'SUPER_ADMIN', 'PROCESSOR']) && (
+              <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/enterprise/admin')}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-red-600" />
+                    Admin Portal
+                  </CardTitle>
+                  <CardDescription>
+                    Process claims and manage system operations
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Button className="w-full" variant="destructive" onClick={(e) => { e.stopPropagation(); navigate('/enterprise/admin'); }}>
+                      Admin Dashboard
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={(e) => { e.stopPropagation(); navigate('/enterprise/admin/claims'); }}>
+                      Process Claims
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
@@ -133,21 +274,6 @@ export default function EnterpriseIndex() {
                 <div className="text-2xl font-bold">{metrics.approval_rate.toFixed(1)}%</div>
                 <p className="text-xs text-muted-foreground">
                   {metrics.approved_claims} of {metrics.approved_claims + metrics.denied_claims} processed
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Processing Time</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {(metrics.avg_processing_time_seconds / 60).toFixed(1)}m
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {metrics.avg_processing_time_seconds.toFixed(0)}s average
                 </p>
               </CardContent>
             </Card>
@@ -261,11 +387,25 @@ export default function EnterpriseIndex() {
                   <CardDescription>Common tasks and shortcuts</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={() => {
+                      console.log('Navigating to submit claim');
+                      navigate('/enterprise/user/submit-claim');
+                    }}
+                  >
                     <Users className="h-4 w-4 mr-2" />
                     Submit New Claim
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={() => {
+                      console.log('Navigating to view claims');
+                      navigate('/enterprise/user/claims');
+                    }}
+                  >
                     <BarChart3 className="h-4 w-4 mr-2" />
                     View All Claims
                   </Button>
@@ -274,12 +414,16 @@ export default function EnterpriseIndex() {
                       <Button 
                         className="w-full justify-start" 
                         variant="outline"
-                        onClick={() => window.location.href = '/enterprise/admin'}
+                        onClick={() => navigate('/enterprise/admin')}
                       >
                         <Shield className="h-4 w-4 mr-2" />
                         Admin Portal
                       </Button>
-                      <Button className="w-full justify-start" variant="outline">
+                      <Button 
+                        className="w-full justify-start" 
+                        variant="outline"
+                        onClick={() => navigate('/enterprise/admin/claims')}
+                      >
                         <Activity className="h-4 w-4 mr-2" />
                         Process Pending Claims
                       </Button>
@@ -324,7 +468,11 @@ export default function EnterpriseIndex() {
                             {claim.confidence_score.toFixed(0)}% confidence
                           </Badge>
                         )}
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => navigate(`/enterprise/user/claim/${claim.claim_id}`)}
+                        >
                           View Details
                         </Button>
                       </div>

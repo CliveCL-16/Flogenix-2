@@ -726,13 +726,15 @@ export default function EnterpriseClaimDetails() {
                                   <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
                                     Step {stepIndex + 1}
                                   </span>
-                                  <span className="text-sm text-gray-600">{step.type || 'Reasoning'}</span>
+                                  <span className="text-sm text-gray-600">Reasoning</span>
                                 </div>
-                                <p className="text-sm text-gray-700">{step.content || step.thought || 'No content available'}</p>
-                                {step.action && (
+                                <p className="text-sm text-gray-700">
+                                  {typeof step === 'string' ? step : (step.content || step.thought || step.text || 'No content available')}
+                                </p>
+                                {typeof step === 'object' && step.action && (
                                   <p className="text-sm text-blue-600 mt-1"><strong>Action:</strong> {step.action}</p>
                                 )}
-                                {step.observation && (
+                                {typeof step === 'object' && step.observation && (
                                   <p className="text-sm text-green-600 mt-1"><strong>Observation:</strong> {step.observation}</p>
                                 )}
                               </div>
@@ -749,22 +751,50 @@ export default function EnterpriseClaimDetails() {
                                 Tools Used
                               </h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {report.tool_usage.map((tool: any, toolIndex: number) => (
-                                  <div key={toolIndex} className="p-3 bg-gray-50 rounded-lg">
-                                    <div className="flex items-center justify-between mb-2">
-                                      <span className="font-medium text-sm">{tool.tool_name || 'Unknown Tool'}</span>
-                                      <Badge variant="outline" className="text-xs">
-                                        {tool.execution_time || '0'}ms
-                                      </Badge>
-                                    </div>
-                                    <p className="text-xs text-gray-600">{tool.description || 'No description available'}</p>
-                                    {tool.result && (
+                                {report.tool_usage.map((toolItem: any, toolIndex: number) => {
+                                  // Handle different tool data structures
+                                  let toolName = 'Unknown Tool';
+                                  let executionTime = '0';
+                                  let description = 'No description available';
+                                  let result = 'N/A';
+                                  
+                                  if (typeof toolItem === 'object') {
+                                    if (toolItem.tool_name) {
+                                      // Expected structure
+                                      toolName = toolItem.tool_name;
+                                      executionTime = toolItem.execution_time || '0';
+                                      description = toolItem.description || 'No description available';
+                                      result = toolItem.result || 'N/A';
+                                    } else if (toolItem.tool) {
+                                      // Current API structure - extract tool name from tool string
+                                      const toolString = toolItem.tool.toString();
+                                      const toolNameMatch = toolString.match(/tool_name='([^']+)'/);
+                                      toolName = toolNameMatch ? toolNameMatch[1] : 'Unknown Tool';
+                                      
+                                      // Extract execution time if available
+                                      const timeMatch = toolString.match(/execution_time=([0-9.]+)/);
+                                      executionTime = timeMatch ? Math.round(parseFloat(timeMatch[1]) * 1000).toString() : '0';
+                                      
+                                      description = `Tool call with parameters`;
+                                      result = toolItem.result || 'success';
+                                    }
+                                  }
+                                  
+                                  return (
+                                    <div key={toolIndex} className="p-3 bg-gray-50 rounded-lg">
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="font-medium text-sm">{toolName}</span>
+                                        <Badge variant="outline" className="text-xs">
+                                          {executionTime}ms
+                                        </Badge>
+                                      </div>
+                                      <p className="text-xs text-gray-600">{description}</p>
                                       <p className="text-xs text-green-600 mt-1">
-                                        <strong>Result:</strong> {typeof tool.result === 'string' ? tool.result : JSON.stringify(tool.result)}
+                                        <strong>Result:</strong> {typeof result === 'string' ? result : JSON.stringify(result)}
                                       </p>
-                                    )}
-                                  </div>
-                                ))}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           </>

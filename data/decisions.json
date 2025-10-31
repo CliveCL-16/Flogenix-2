@@ -2,9 +2,521 @@
   {
     "claim_id": "CLM-SAMPLE001",
     "decision": "APPROVE",
-    "confidence_score": 75.0,
+    "confidence_score": 0.75,
     "reasoning_text": "**Final Decision:** Processed with fallback logic - OpenAI not available\n\n**Agent Analysis:**\n\u2022 \u2705 **Fallback Processor** (0.0s): \u2705 Basic validation completed",
     "fraud_score": 10.0,
     "created_at": "2025-10-28T11:57:34.614922"
+  },
+  {
+    "claim_id": "CLM-64041D6C",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:45.976867"
+  },
+  {
+    "claim_id": "CLM-363EE5E1",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:45.976867"
+  },
+  {
+    "claim_id": "CLM-8E081238",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:45.994928"
+  },
+  {
+    "claim_id": "CLM-A49CF13C",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:45.996873"
+  },
+  {
+    "claim_id": "CLM-DF0A6F38",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.000014"
+  },
+  {
+    "claim_id": "CLM-3AAC98BC",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.000014"
+  },
+  {
+    "claim_id": "CLM-9FC57DC1",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.008318"
+  },
+  {
+    "claim_id": "CLM-478CAA0E",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.011482"
+  },
+  {
+    "claim_id": "CLM-2FCA6C85",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.013488"
+  },
+  {
+    "claim_id": "CLM-C5E50C5A",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.017588"
+  },
+  {
+    "claim_id": "CLM-605CDCB6",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.020741"
+  },
+  {
+    "claim_id": "CLM-1994A0EB",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.025840"
+  },
+  {
+    "claim_id": "CLM-435DDCDA",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.030789"
+  },
+  {
+    "claim_id": "CLM-F5024910",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.038301"
+  },
+  {
+    "claim_id": "CLM-44BDC030",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.041962"
+  },
+  {
+    "claim_id": "CLM-8EF306F0",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.047932"
+  },
+  {
+    "claim_id": "CLM-6A5B9559",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.052009"
+  },
+  {
+    "claim_id": "CLM-B017889F",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.060633"
+  },
+  {
+    "claim_id": "CLM-1423BFFC",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.066926"
+  },
+  {
+    "claim_id": "CLM-CDD19B88",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.069163"
+  },
+  {
+    "claim_id": "CLM-CDC761F7",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.079198"
+  },
+  {
+    "claim_id": "CLM-C48D633C",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.081719"
+  },
+  {
+    "claim_id": "CLM-EDCD93C2",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.085131"
+  },
+  {
+    "claim_id": "CLM-0B3FE205",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.090245"
+  },
+  {
+    "claim_id": "CLM-E44E88FA",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.096709"
+  },
+  {
+    "claim_id": "CLM-E45CE7EB",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.100274"
+  },
+  {
+    "claim_id": "CLM-FFE9978D",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.108255"
+  },
+  {
+    "claim_id": "CLM-D4FA8934",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.108255"
+  },
+  {
+    "claim_id": "CLM-640DB4FB",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.115761"
+  },
+  {
+    "claim_id": "CLM-3F1E2F5C",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.123614"
+  },
+  {
+    "claim_id": "CLM-E55140FE",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.130436"
+  },
+  {
+    "claim_id": "CLM-56CF05EE",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.132989"
+  },
+  {
+    "claim_id": "CLM-47433970",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.142596"
+  },
+  {
+    "claim_id": "CLM-0B9CF2FE",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.147744"
+  },
+  {
+    "claim_id": "CLM-37613DE0",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.151580"
+  },
+  {
+    "claim_id": "CLM-076C4D9A",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.156642"
+  },
+  {
+    "claim_id": "CLM-97158AE7",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.163454"
+  },
+  {
+    "claim_id": "CLM-921269D5",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.167717"
+  },
+  {
+    "claim_id": "CLM-63B6BFB6",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.180060"
+  },
+  {
+    "claim_id": "CLM-AACB9F37",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.182399"
+  },
+  {
+    "claim_id": "CLM-DF0B81FA",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.192362"
+  },
+  {
+    "claim_id": "CLM-91B4CFE4",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.197163"
+  },
+  {
+    "claim_id": "CLM-557C959C",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.200658"
+  },
+  {
+    "claim_id": "CLM-1580BD22",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.208893"
+  },
+  {
+    "claim_id": "CLM-2626C124",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.221514"
+  },
+  {
+    "claim_id": "CLM-673B2D4B",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.227118"
+  },
+  {
+    "claim_id": "CLM-F95F4FBE",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.227118"
+  },
+  {
+    "claim_id": "CLM-0CE24F59",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.243770"
+  },
+  {
+    "claim_id": "CLM-494422EC",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.247494"
+  },
+  {
+    "claim_id": "CLM-8F0893DE",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.260382"
+  },
+  {
+    "claim_id": "CLM-2E3B5BE6",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.268469"
+  },
+  {
+    "claim_id": "CLM-634A9113",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.275269"
+  },
+  {
+    "claim_id": "CLM-AC589DAF",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.285279"
+  },
+  {
+    "claim_id": "CLM-C06234BE",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.296922"
+  },
+  {
+    "claim_id": "CLM-7569256E",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.296922"
+  },
+  {
+    "claim_id": "CLM-E6BC280E",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.312609"
+  },
+  {
+    "claim_id": "CLM-B83963EA",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.312609"
+  },
+  {
+    "claim_id": "CLM-16B0F9E4",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.329446"
+  },
+  {
+    "claim_id": "CLM-27FB1474",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.329446"
+  },
+  {
+    "claim_id": "CLM-D1CA7E21",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 15.0,
+    "created_at": "2025-10-30T21:03:46.347218"
+  },
+  {
+    "claim_id": "CLM-15B10E43",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "**Multi-Agent AI Analysis (Gemini-2.5-Flash):** Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 0.1,
+    "created_at": "2025-10-30T22:26:31.137326"
+  },
+  {
+    "claim_id": "CLM-E21B2003",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "**Multi-Agent AI Analysis (Gemini-2.5-Flash):** Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 0.1,
+    "created_at": "2025-10-30T22:28:43.406576"
+  },
+  {
+    "claim_id": "CLM-748408A1",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "**Multi-Agent AI Analysis (Gemini-2.5-Flash):** Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 0.1,
+    "created_at": "2025-10-30T23:47:18.386058"
+  },
+  {
+    "claim_id": "CLM-F3280F58",
+    "decision": "DENY",
+    "confidence_score": 90.0,
+    "reasoning_text": "**Multi-Agent AI Analysis (Gemini-2.5-Flash):** Claim denied due to: Medical codes invalid or incompatible",
+    "fraud_score": 0.1,
+    "created_at": "2025-10-31T00:05:52.022116"
   }
 ]
