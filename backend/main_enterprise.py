@@ -40,6 +40,7 @@ from app.services.dynamic_triage_service import dynamic_triage_service
 from app.services.enhanced_fraud_detection import enhanced_fraud_detection
 from app.services.ai_customer_support import ai_customer_support
 from app.services.human_in_loop_service import human_in_loop_service
+from app.services.multi_agent_processor import multi_agent_processor
 
 # Get settings
 settings = get_settings()

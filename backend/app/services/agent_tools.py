@@ -10,13 +10,13 @@ import json
 
 from app.services.data_handler import DataHandler
 from app.services.validation import ValidationService
-from app.services.enhanced_fraud_detection import enhanced_fraud_detection
+from app.services.fraud_detection import FraudDetectionService
 from app.models import Claim, ClaimState
 
 
 # Initialize services
 data_handler = DataHandler()
-fraud_service = enhanced_fraud_detection
+fraud_service = FraudDetectionService(data_handler)
 
 
 @tool
